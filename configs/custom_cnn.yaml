@@ -1,0 +1,31 @@
+# From-scratch compact CNN. Trains longer than the transfer models because all
+# weights start random. Hyperparameters here are the search-tuned defaults
+# (see scripts/autoresearch_loop.py and results/metrics/autoresearch.json).
+model: custom_cnn
+
+# Architecture
+width: 32          # base conv channels (doubles each block)
+dropout: 0.3
+pretrained: false
+freeze_backbone: false
+
+# Data
+img_size: 128
+batch_size: 32
+val_frac: 0.15
+test_frac: 0.15
+split_seed: 42     # FIXED across all runs -> shared test set for McNemar
+aug_strength: 1.0
+
+# Optimization
+epochs: 30
+lr: 0.001
+weight_decay: 0.0001
+optimizer: adamw
+scheduler: cosine
+label_smoothing: 0.05
+patience: 8
+
+# System
+device: auto
+deterministic: true

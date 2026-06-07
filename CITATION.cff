@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "papa-vision: Lightweight CNNs for potato leaf disease diagnosis on commodity hardware"
+authors:
+  - family-names: Pacheco
+    given-names: Niels
+    email: nielspacheco1997@gmail.com
+version: 1.0.0
+date-released: 2026-06-13
+license: MIT
+repository-code: "https://github.com/nielspacheco1997/papa-vision"
+keywords:
+  - deep learning
+  - convolutional neural networks
+  - plant disease classification
+  - transfer learning
+  - Grad-CAM
+  - PyTorch
+abstract: >-
+  A reproducible study comparing a from-scratch convolutional neural network
+  against ImageNet-pretrained transfer-learning backbones for three-class potato
+  leaf disease classification (healthy, early blight, late blight), with
+  bootstrap confidence intervals, McNemar significance testing, calibration
+  analysis, and Grad-CAM interpretability, trained entirely on commodity
+  hardware without a GPU.

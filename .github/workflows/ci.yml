@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Pin Python 3.12
+        run: uv python pin 3.12
+
+      - name: Install dependencies (from lockfile)
+        run: uv sync --frozen --extra dev
+
+      - name: Run test suite (synthetic data, no download)
+        run: uv run pytest -v
+
+      - name: Smoke-test a 1-epoch training run on synthetic data
+        run: uv run python -m papavision.train --config configs/custom_cnn.yaml --seed 0 --smoke

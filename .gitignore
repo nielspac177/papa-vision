@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# uv / virtualenv
+.venv/
+.python-version
+
+# Data (downloaded, not redistributed) — keep the folder + its README
+data/*
+!data/README.md
+!data/.gitkeep
+
+# Model checkpoints (large, regenerable)
+results/checkpoints/
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.log
+paper/*.out
+paper/*.bbl
+paper/*.blg
+paper/*.toc
+paper/*.synctex.gz
+paper/*.fls
+paper/*.fdb_latexmk
+
+# Slides build artifacts
+slides/*.html
+slides/*.pdf
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

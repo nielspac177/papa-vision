@@ -1,0 +1,50 @@
+[project]
+name = "papavision"
+version = "1.0.0"
+description = "Lightweight CNNs for potato leaf disease diagnosis on commodity hardware: from-scratch vs. transfer learning with Grad-CAM interpretability."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Niels Pacheco", email = "nielspacheco1997@gmail.com" }]
+keywords = ["deep-learning", "cnn", "plant-disease", "potato", "grad-cam", "pytorch"]
+
+# Pinned lower bounds; exact versions are frozen in uv.lock for reproducibility.
+dependencies = [
+    "torch>=2.2",
+    "torchvision>=0.17",
+    "numpy>=1.26",
+    "scipy>=1.12",
+    "scikit-learn>=1.4",
+    "matplotlib>=3.8",
+    "pandas>=2.2",
+    "pyyaml>=6.0",
+    "pillow>=10.2",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+# Used only by scripts/download_data.py to pull the PlantVillage potato subset
+# from the Hugging Face Hub. Not required for training/eval if data is already
+# present locally.
+download = ["datasets>=2.18", "huggingface-hub>=0.21"]
+# Test + development tooling.
+dev = ["pytest>=8.0", "pytest-cov>=4.1"]
+
+[project.urls]
+Homepage = "https://github.com/nielspacheco1997/papa-vision"
+Repository = "https://github.com/nielspacheco1997/papa-vision"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/papavision"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.uv]
+# Keep resolution reproducible across machines.
+package = true
