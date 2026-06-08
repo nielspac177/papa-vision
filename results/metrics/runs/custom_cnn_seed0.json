@@ -1,0 +1,225 @@
+{
+  "run_id": "custom_cnn_seed0",
+  "config": {
+    "model": "custom_cnn",
+    "width": 24,
+    "dropout": 0.3,
+    "pretrained": false,
+    "freeze_backbone": false,
+    "img_size": 128,
+    "batch_size": 32,
+    "val_frac": 0.15,
+    "test_frac": 0.15,
+    "split_seed": 42,
+    "aug_strength": 0.5,
+    "epochs": 30,
+    "lr": 0.001,
+    "weight_decay": 1e-05,
+    "optimizer": "adamw",
+    "scheduler": "cosine",
+    "label_smoothing": 0.05,
+    "patience": 8,
+    "device": "auto",
+    "deterministic": true,
+    "seed": 0,
+    "run_id": "custom_cnn_seed0"
+  },
+  "data_root": null,
+  "meta": {
+    "n_total": 2152,
+    "n_train": 1506,
+    "n_val": 323,
+    "n_test": 323,
+    "train_class_counts": {
+      "Potato___healthy": 106,
+      "Potato___Early_blight": 700,
+      "Potato___Late_blight": 700
+    },
+    "classes": [
+      "Potato___healthy",
+      "Potato___Early_blight",
+      "Potato___Late_blight"
+    ],
+    "img_size": 128,
+    "split_seed": 42
+  },
+  "params": {
+    "total": 328587,
+    "trainable": 328587
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.6712386437146313,
+      "val_loss": 0.6257310005902506,
+      "val_macro_f1": 0.6011860736282941
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.5575362513581437,
+      "val_loss": 0.6395469264072531,
+      "val_macro_f1": 0.7073933005800638
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.5163389692901773,
+      "val_loss": 0.5294137618305513,
+      "val_macro_f1": 0.8856748101032096
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.5200904479539726,
+      "val_loss": 0.5013997575077849,
+      "val_macro_f1": 0.75697925368978
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.5180029375936247,
+      "val_loss": 0.4960132655529046,
+      "val_macro_f1": 0.7830883039113496
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.45124422981444584,
+      "val_loss": 0.4334575557395032,
+      "val_macro_f1": 0.9514786768111207
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.4394967741225345,
+      "val_loss": 0.48818621233151793,
+      "val_macro_f1": 0.7871302085969359
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.45597182279563997,
+      "val_loss": 0.3962808568780267,
+      "val_macro_f1": 0.9413693281617811
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.4197141457680529,
+      "val_loss": 0.41788319311459365,
+      "val_macro_f1": 0.8802329706717124
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.41817382797302005,
+      "val_loss": 0.6351461583062222,
+      "val_macro_f1": 0.8771984541324835
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.46875508270099026,
+      "val_loss": 0.44652980220022587,
+      "val_macro_f1": 0.8217504785770468
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.41886759849183586,
+      "val_loss": 0.5684946332092256,
+      "val_macro_f1": 0.8735740197694613
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.4449232960760514,
+      "val_loss": 0.4076251803721437,
+      "val_macro_f1": 0.9687183496958092
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.40901969034833263,
+      "val_loss": 0.3797056960063084,
+      "val_macro_f1": 0.9687338843320245
+    },
+    {
+      "epoch": 15,
+      "train_loss": 0.3884021833756689,
+      "val_loss": 0.46626007852170487,
+      "val_macro_f1": 0.9598665630736436
+    },
+    {
+      "epoch": 16,
+      "train_loss": 0.4068456994268207,
+      "val_loss": 0.38009396578320775,
+      "val_macro_f1": 0.9502923160641282
+    },
+    {
+      "epoch": 17,
+      "train_loss": 0.4190362465492441,
+      "val_loss": 0.3810106710568301,
+      "val_macro_f1": 0.9588876956426625
+    },
+    {
+      "epoch": 18,
+      "train_loss": 0.40189193080304314,
+      "val_loss": 0.3879512039131424,
+      "val_macro_f1": 0.9369023064612251
+    },
+    {
+      "epoch": 19,
+      "train_loss": 0.39064040942337724,
+      "val_loss": 0.398605473547159,
+      "val_macro_f1": 0.9396956803194466
+    },
+    {
+      "epoch": 20,
+      "train_loss": 0.38383847364233153,
+      "val_loss": 0.4017412201169844,
+      "val_macro_f1": 0.9753789226499681
+    },
+    {
+      "epoch": 21,
+      "train_loss": 0.38972364154311606,
+      "val_loss": 0.3689175406384394,
+      "val_macro_f1": 0.9709491692296405
+    },
+    {
+      "epoch": 22,
+      "train_loss": 0.3776919913798531,
+      "val_loss": 0.3807591353961189,
+      "val_macro_f1": 0.9603747222794842
+    },
+    {
+      "epoch": 23,
+      "train_loss": 0.37928590130995943,
+      "val_loss": 0.3776743955933273,
+      "val_macro_f1": 0.9603747222794842
+    },
+    {
+      "epoch": 24,
+      "train_loss": 0.3713179673964917,
+      "val_loss": 0.37349179308665426,
+      "val_macro_f1": 0.9655332590115199
+    },
+    {
+      "epoch": 25,
+      "train_loss": 0.3678602076779957,
+      "val_loss": 0.3684172673675667,
+      "val_macro_f1": 0.9655332590115199
+    },
+    {
+      "epoch": 26,
+      "train_loss": 0.37288002758862016,
+      "val_loss": 0.3728673887142087,
+      "val_macro_f1": 0.9677479492915735
+    },
+    {
+      "epoch": 27,
+      "train_loss": 0.3681801923242698,
+      "val_loss": 0.37283768710152654,
+      "val_macro_f1": 0.9655332590115199
+    },
+    {
+      "epoch": 28,
+      "train_loss": 0.3701038501493801,
+      "val_loss": 0.3729966848442798,
+      "val_macro_f1": 0.9603747222794842
+    }
+  ],
+  "best_val_macro_f1": 0.9753789226499681,
+  "best_epoch": 20,
+  "train_seconds": 100.31,
+  "device": "mps",
+  "checkpoint": "/Users/nielspacheco/Desktop/Classes/UNI/Maestria IA/Redes Neuronales/papa-vision/results/checkpoints/custom_cnn_seed0.pt"
+}

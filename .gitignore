@@ -37,3 +37,4 @@ slides/*.pdf
 .DS_Store
 .idea/
 .vscode/
+results/metrics/_*.log

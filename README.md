@@ -34,10 +34,26 @@ Everything runs on **CPU or Apple Silicon (MPS)** — no GPU required.
 
 | Key | Architecture | Source | Params (approx.) |
 |-----|--------------|--------|------------------|
-| `custom_cnn`      | 4-block CNN built from scratch | this repo | ~0.6 M |
-| `mobilenet_v2`    | MobileNetV2 | ImageNet-pretrained, fine-tuned head | ~2.2 M |
-| `resnet18`        | ResNet-18 | ImageNet-pretrained, fine-tuned head | ~11 M |
-| `efficientnet_b0` | EfficientNet-B0 | ImageNet-pretrained, fine-tuned head | ~4 M |
+| `custom_cnn`      | 4-block CNN built from scratch | this repo | ~0.33 M |
+| `mobilenet_v2`    | MobileNetV2 | ImageNet-pretrained, frozen backbone + fine-tuned head | ~2.2 M |
+| `resnet18`        | ResNet-18 | ImageNet-pretrained, frozen backbone + fine-tuned head | ~11 M |
+| `efficientnet_b0` | EfficientNet-B0 | ImageNet-pretrained, frozen backbone + fine-tuned head | ~4 M |
+
+### Headline result (test set, mean ± SD over 3 seeds)
+
+| Model | Params | Accuracy (%) | Macro-F1 (%) | ECE |
+|-------|-------:|:------------:|:------------:|:---:|
+| **Custom CNN (scratch)** | **328,587** | **97.3 ± 2.3** | **96.7 ± 2.1** | 0.123 |
+| EfficientNet-B0 | 4,011,391 | 94.9 ± 0.5 | 91.7 ± 1.4 | 0.157 |
+| MobileNetV2 | 2,227,715 | 94.9 ± 0.8 | 91.6 ± 1.2 | 0.134 |
+| ResNet-18 | 11,178,051 | 91.7 ± 1.5 | 86.5 ± 2.1 | 0.171 |
+
+The from-scratch CNN **significantly outperforms** all three frozen-backbone transfer
+baselines (paired McNemar *p* = 0.017 / 0.004 / 7×10⁻⁵) with **7–34× fewer
+parameters** — under an equal low-compute budget, end-to-end domain-specific features
+beat frozen ImageNet features. Grad-CAM shows all models partly attend to background
+(PlantVillage's known bias), so these lab accuracies are an upper bound on field
+performance. Numbers are auto-generated from `results/metrics/` — see the paper.
 
 ---
 
@@ -88,7 +104,7 @@ uv run python -m papavision.train --config configs/resnet18.yaml --seed 0
 papa-vision/
 ├── configs/            # one YAML per model (hyperparameters, augmentation)
 ├── src/papavision/     # the installable package (data, models, train, eval, gradcam, stats, utils)
-├── scripts/            # download_data, run_experiment, autoresearch_loop, make_figures
+├── scripts/            # download_data, autoresearch_loop, make_figures, make_paper_tables
 ├── tests/              # pytest suite (runs on synthetic data, no network)
 ├── paper/              # Nature Scientific Reports-style LaTeX manuscript
 ├── slides/             # Marp presentation deck
@@ -107,8 +123,11 @@ papa-vision/
   YAML file under `configs/`.
 - **Leakage-safe splits** — stratified train/val/test partition with a fixed seed;
   the test set is never touched during model selection.
-- **Deterministic figures** — `make figures` regenerates every plot in the paper
-  from the committed metrics.
+- **Committed artifacts** — `results/metrics/` (per-run and aggregate JSON, test
+  predictions) and `results/figures/` (rendered PNGs) are committed, so the paper's
+  tables and plots are reproducible from the repository. Model checkpoints are *not*
+  committed (size); regenerate them with `make train-all`, after which `make figures`
+  reproduces every plot — including the Grad-CAM panel — from scratch.
 - **CI** — GitHub Actions runs the test suite on every push using a synthetic
   dataset, so the pipeline is verified without large downloads.
 

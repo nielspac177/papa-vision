@@ -1,0 +1,140 @@
+{
+  "run_id": "resnet18_seed2",
+  "config": {
+    "model": "resnet18",
+    "dropout": 0.3,
+    "pretrained": true,
+    "freeze_backbone": true,
+    "img_size": 128,
+    "batch_size": 32,
+    "val_frac": 0.15,
+    "test_frac": 0.15,
+    "split_seed": 42,
+    "aug_strength": 1.0,
+    "epochs": 15,
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "optimizer": "adamw",
+    "scheduler": "cosine",
+    "label_smoothing": 0.05,
+    "patience": 6,
+    "device": "auto",
+    "deterministic": true,
+    "seed": 2,
+    "run_id": "resnet18_seed2"
+  },
+  "data_root": null,
+  "meta": {
+    "n_total": 2152,
+    "n_train": 1506,
+    "n_val": 323,
+    "n_test": 323,
+    "train_class_counts": {
+      "Potato___healthy": 106,
+      "Potato___Early_blight": 700,
+      "Potato___Late_blight": 700
+    },
+    "classes": [
+      "Potato___healthy",
+      "Potato___Early_blight",
+      "Potato___Late_blight"
+    ],
+    "img_size": 128,
+    "split_seed": 42
+  },
+  "params": {
+    "total": 11178051,
+    "trainable": 1539
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "train_loss": 0.9675295363226102,
+      "val_loss": 0.6713200078660121,
+      "val_macro_f1": 0.7365946784393271
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.6603919414885016,
+      "val_loss": 0.5918562743040061,
+      "val_macro_f1": 0.8546251352098687
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.6541875116378663,
+      "val_loss": 0.5766004114512688,
+      "val_macro_f1": 0.8457440424077302
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.573081410936467,
+      "val_loss": 0.529997188609451,
+      "val_macro_f1": 0.8353758922790333
+    },
+    {
+      "epoch": 5,
+      "train_loss": 0.5749836132662547,
+      "val_loss": 0.5277715119599558,
+      "val_macro_f1": 0.8059504811927131
+    },
+    {
+      "epoch": 6,
+      "train_loss": 0.5597384111339827,
+      "val_loss": 0.5217754948342178,
+      "val_macro_f1": 0.8560244697094305
+    },
+    {
+      "epoch": 7,
+      "train_loss": 0.5681678694716171,
+      "val_loss": 0.5236734419415241,
+      "val_macro_f1": 0.8469234926466647
+    },
+    {
+      "epoch": 8,
+      "train_loss": 0.5565287120155445,
+      "val_loss": 0.5131857259539259,
+      "val_macro_f1": 0.8594881604649758
+    },
+    {
+      "epoch": 9,
+      "train_loss": 0.5391703652512346,
+      "val_loss": 0.5402589097111586,
+      "val_macro_f1": 0.796561758755237
+    },
+    {
+      "epoch": 10,
+      "train_loss": 0.5548229639432029,
+      "val_loss": 0.5464419229849943,
+      "val_macro_f1": 0.7899444478866088
+    },
+    {
+      "epoch": 11,
+      "train_loss": 0.5528072490793459,
+      "val_loss": 0.5188667342851037,
+      "val_macro_f1": 0.8423322732091473
+    },
+    {
+      "epoch": 12,
+      "train_loss": 0.5512485007049236,
+      "val_loss": 0.5296671218916359,
+      "val_macro_f1": 0.8583693842885438
+    },
+    {
+      "epoch": 13,
+      "train_loss": 0.5423453771577255,
+      "val_loss": 0.522396274810605,
+      "val_macro_f1": 0.8523848367962895
+    },
+    {
+      "epoch": 14,
+      "train_loss": 0.5557977759030711,
+      "val_loss": 0.519553525482907,
+      "val_macro_f1": 0.8546358438975888
+    }
+  ],
+  "best_val_macro_f1": 0.8594881604649758,
+  "best_epoch": 8,
+  "train_seconds": 39.67,
+  "device": "mps",
+  "checkpoint": "/Users/nielspacheco/Desktop/Classes/UNI/Maestria IA/Redes Neuronales/papa-vision/results/checkpoints/resnet18_seed2.pt"
+}

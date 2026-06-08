@@ -105,6 +105,12 @@ def main() -> None:
     if transfer:
         best_transfer = max(transfer, key=lambda m: models[m]["macro_f1_mean"])
         macros.append(num_macro("besttransfer", PRETTY[best_transfer]))
+        macros.append(num_macro("besttransferfone", f"{models[best_transfer]['macro_f1_mean'] * 100:.1f}"))
+        # Parameter ratio range: custom CNN vs smallest & largest transfer model.
+        cust_p = models["custom_cnn"]["params"]["total"] if "custom_cnn" in models else 1
+        tparams = [models[m]["params"]["total"] for m in transfer]
+        macros.append(num_macro("paramratiomin", f"{min(tparams) / cust_p:.0f}"))
+        macros.append(num_macro("paramratiomax", f"{max(tparams) / cust_p:.0f}"))
         for key, res in mcnemar.items():
             if "custom_cnn" in key and best_transfer in key:
                 p = res["p_value"]
@@ -128,12 +134,13 @@ def main() -> None:
     lines.append("Model & Params & Accuracy (\\%) & Macro-F1 (\\%) & ECE \\\\\n\\hline\n")
     for m in present:
         s = models[m]
-        bold = "\\textbf" if m == best_model else "{}"
+        pstr = f"{s['params']['total']:,}".replace(",", "{,}")  # LaTeX-safe thousands
+        bold = "\\textbf" if m == best_model else ""
         lines.append(
-            f"{PRETTY[m]} & {s['params']['total']:,} & "
+            f"{PRETTY[m]} & {pstr} & "
             f"{fmt_pm(s['accuracy_mean'], s['accuracy_std'])} & "
             f"{bold}{{{fmt_pm(s['macro_f1_mean'], s['macro_f1_std'])}}} & "
-            f"{s['ece_mean']:.3f} \\\\\n".replace(",", "{,}")
+            f"{s['ece_mean']:.3f} \\\\\n"
         )
     lines.append("\\hline\n\\end{tabular}\n\\end{table}\n")
 
@@ -146,7 +153,7 @@ def main() -> None:
         lines.append("\n\\begin{table}[t]\n\\centering\n")
         lines.append(f"\\caption{{Per-class test metrics for the best model "
                      f"({PRETTY[best_model]}, representative seed). "
-                     "Support is the number of test images per class.}}\n")
+                     "Support is the number of test images per class.}\n")
         lines.append("\\label{tab:perclass}\n")
         lines.append("\\begin{tabular}{lcccc}\n\\hline\n")
         lines.append("Class & Precision & Recall & F1 & Support \\\\\n\\hline\n")

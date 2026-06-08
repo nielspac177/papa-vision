@@ -3,8 +3,8 @@
 # (see scripts/autoresearch_loop.py and results/metrics/autoresearch.json).
 model: custom_cnn
 
-# Architecture
-width: 32          # base conv channels (doubles each block)
+# Architecture  (width/dropout selected by the autoresearch search, trial 9)
+width: 24          # base conv channels (grows then plateaus to 4x)
 dropout: 0.3
 pretrained: false
 freeze_backbone: false
@@ -15,12 +15,12 @@ batch_size: 32
 val_frac: 0.15
 test_frac: 0.15
 split_seed: 42     # FIXED across all runs -> shared test set for McNemar
-aug_strength: 1.0
+aug_strength: 0.5  # search-selected
 
-# Optimization
+# Optimization  (lr/weight_decay selected by the autoresearch search)
 epochs: 30
 lr: 0.001
-weight_decay: 0.0001
+weight_decay: 0.00001
 optimizer: adamw
 scheduler: cosine
 label_smoothing: 0.05

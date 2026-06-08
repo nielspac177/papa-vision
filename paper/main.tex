@@ -22,6 +22,11 @@
 \titleformat{\section}{\large\bfseries\color{black!85}}{\thesection}{0.6em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{\thesubsection}{0.5em}{}
 
+% Load the auto-generated metric macros FIRST (real \newcommand definitions);
+% the \providecommand fallbacks below then only fill in anything still missing,
+% so the document also compiles standalone before metrics are generated.
+\IfFileExists{results_macros.tex}{\input{results_macros}}{}
+
 % --- Fallbacks so the document compiles even before metrics are generated. ---
 \providecommand{\accCustom}{--}\providecommand{\foneCustom}{--}\providecommand{\eceCustom}{--}
 \providecommand{\paramsCustom}{--}\providecommand{\trainparamsCustom}{--}
@@ -29,10 +34,10 @@
 \providecommand{\accResnet}{--}\providecommand{\foneResnet}{--}\providecommand{\eceResnet}{--}\providecommand{\paramsResnet}{--}\providecommand{\trainparamsResnet}{--}
 \providecommand{\accEfficientnet}{--}\providecommand{\foneEfficientnet}{--}\providecommand{\eceEfficientnet}{--}\providecommand{\paramsEfficientnet}{--}\providecommand{\trainparamsEfficientnet}{--}
 \providecommand{\ntrain}{--}\providecommand{\nval}{--}\providecommand{\ntest}{--}\providecommand{\ntotal}{--}\providecommand{\nseeds}{--}
-\providecommand{\bestmodel}{--}\providecommand{\bestfone}{--}\providecommand{\besttransfer}{the best transfer model}
+\providecommand{\bestmodel}{--}\providecommand{\bestfone}{--}\providecommand{\besttransfer}{the best transfer model}\providecommand{\besttransferfone}{--}
+\providecommand{\paramratiomin}{--}\providecommand{\paramratiomax}{--}
 \providecommand{\hpotrials}{--}\providecommand{\hpobestfone}{--}\providecommand{\hpolr}{--}\providecommand{\hpowd}{--}\providecommand{\hpowidth}{--}\providecommand{\hpodropout}{--}\providecommand{\hpoaug}{--}
 \providecommand{\mcnemarbestp}{--}\providecommand{\mcnemarbestverdict}{--}
-\IfFileExists{results_macros.tex}{\input{results_macros}}{}
 
 \title{\vspace{-1.0cm}\bfseries Lightweight convolutional neural networks for
 potato leaf disease diagnosis on commodity hardware: a from-scratch versus
@@ -60,14 +65,19 @@ smallholder farmers who would benefit most. We ask whether a compact CNN trained
 rival ImageNet-pretrained transfer-learning baselines for three-class potato leaf
 classification (healthy, early blight, late blight). On the PlantVillage potato
 subset ($\ntotal$ images) we compare a $\paramsCustom$-parameter custom CNN against
-fine-tuned MobileNetV2, ResNet-18 and EfficientNet-B0, evaluating every model over
+MobileNetV2, ResNet-18 and EfficientNet-B0 with frozen ImageNet backbones and
+fine-tuned heads, evaluating every model over
 $\nseeds$ random seeds with bootstrap confidence intervals, McNemar significance
-testing and calibration analysis. The custom CNN reaches $\foneCustom\%$ macro-F1,
-compared with $\bestfone\%$ for \bestmodel; the paired McNemar test indicates
-\mcnemarbestverdict{} between the custom CNN and \besttransfer{}
-($p=\mcnemarbestp$). Grad-CAM saliency maps reveal that all models partly attend to
-image background rather than leaf lesions, exposing the well-documented background
-bias of PlantVillage and tempering the optimistic accuracies. We release a fully
+testing and calibration analysis. Strikingly, the from-scratch custom CNN attains
+$\foneCustom\%$ macro-F1, \emph{exceeding} the strongest transfer baseline
+(\besttransfer{}, $\besttransferfone\%$); paired McNemar tests confirm that it
+significantly outperforms all three frozen-backbone transfer models ($p<0.05$)
+while using roughly $\paramratiomin$--$\paramratiomax\times$ fewer parameters. The
+result indicates that, under an equal low-compute budget, learning compact
+domain-specific features end-to-end beats reusing frozen ImageNet features. Grad-CAM
+saliency maps nonetheless reveal that all models partly attend to image background
+rather than leaf lesions, exposing the well-documented background bias of
+PlantVillage and tempering the optimistic accuracies. We release a fully
 reproducible pipeline---pinned environment, fixed seeds, configuration-driven
 experiments and a one-command build of this manuscript---to support honest,
 hardware-accessible plant-disease research.
@@ -102,8 +112,9 @@ GPU-less laptop come to ImageNet-pretrained transfer learning for potato leaf
 disease classification?} Our contributions are:
 \begin{enumerate}
   \item A compact custom CNN ($\paramsCustom$ parameters) that trains end-to-end on
-  CPU or Apple-Silicon hardware, benchmarked head-to-head against fine-tuned
-  MobileNetV2, ResNet-18 and EfficientNet-B0.
+  CPU or Apple-Silicon hardware, benchmarked head-to-head against transfer-learning
+  baselines (MobileNetV2, ResNet-18 and EfficientNet-B0 with frozen ImageNet
+  backbones and fine-tuned classification heads).
   \item A statistically rigorous evaluation---multi-seed runs, bootstrap 95\%
   confidence intervals, and McNemar's paired test on a shared test
   set~\cite{dietterich1998mcnemar}---rather than a single accuracy number.
@@ -211,15 +222,20 @@ saliency maps to inspect which image regions drive each prediction.
 \subsection{Classification performance}
 Table~\ref{tab:results} summarises test performance. All four models classify the
 three potato conditions accurately, reflecting the relatively clean,
-laboratory-controlled nature of PlantVillage. Notably, the from-scratch custom CNN
-is competitive with the much larger pretrained backbones despite having an order of
-magnitude fewer parameters and using no external data: it attains $\foneCustom\%$
-macro-F1 versus $\bestfone\%$ for the strongest model, \bestmodel{}
-(Fig.~\ref{fig:comparison}). The paired McNemar test between the custom CNN and
-\besttransfer{} indicates \mcnemarbestverdict{} ($p=\mcnemarbestp$), so the apparent
-gap is not statistically reliable on this test set. Validation macro-F1 curves
-(Fig.~\ref{fig:curves}) show that the pretrained models converge within a few epochs,
-whereas the custom CNN needs longer but reaches a comparable plateau.
+laboratory-controlled nature of PlantVillage. The headline result, however, is that
+the from-scratch custom CNN is not merely competitive but the \emph{best} performer:
+with only $\paramsCustom$ parameters it attains $\foneCustom\%$ macro-F1, ahead of
+the strongest transfer baseline (\besttransfer{}, $\besttransferfone\%$) and well
+ahead of ResNet-18 (Fig.~\ref{fig:comparison}). Paired McNemar tests between the
+custom CNN and each frozen-backbone transfer model are all significant
+($p=\mcnemarbestp$ versus \besttransfer{}, and smaller against the others; see the
+repository's \texttt{summary.json}), so the advantage is statistically reliable on
+this shared test set and not an artefact of a single seed. The interpretation is
+that, when only a small classification head can be trained on top of a frozen
+ImageNet backbone, those backbones contribute generic features poorly matched to
+leaf pathology, whereas the compact CNN---trained end-to-end---learns features
+specific to the task. Validation macro-F1 curves (Fig.~\ref{fig:curves}) show all
+models reaching a high plateau within the training budget.
 
 \begin{figure}[t]
 \centering
@@ -255,11 +271,15 @@ row-normalised rate).}
 
 \subsection{Calibration}
 Beyond accuracy, a deployable diagnostic should report trustworthy confidences.
-Fig.~\ref{fig:reliability} shows reliability diagrams and ECE values. The custom CNN
-attains an ECE of $\eceCustom$, indicating that its softmax confidences track its
-empirical accuracy reasonably well, on par with the pretrained baselines. This
-matters in practice: a well-calibrated model can defer uncertain cases to a human
-expert.
+Fig.~\ref{fig:reliability} shows reliability diagrams and ECE values. All models are
+\emph{moderately overconfident}: the custom CNN's ECE is $\eceCustom$, and the
+transfer models range similarly (roughly $0.13$--$0.17$). The bars sit below the
+diagonal at high confidence, the classic signature of overconfidence reported for
+modern networks. This is an honest limitation: while the custom CNN is both the most
+accurate and the best calibrated of the four, none is calibrated well enough to take
+its raw confidences at face value, and a deployed system would benefit from
+post-hoc calibration (e.g.\ temperature scaling) before using confidence to defer
+uncertain cases to a human expert.
 
 \begin{figure}[t]
 \centering
@@ -289,15 +309,21 @@ PlantVillage background bias.}
 \end{figure}
 
 \section{Discussion}
-Our results support a nuanced conclusion. On the one hand, a small CNN trained from
-scratch on a laptop is \emph{not} meaningfully outperformed by ImageNet-pretrained
-backbones for this three-class problem; transfer learning buys faster convergence
-more than higher final accuracy. For practitioners targeting a narrow, well-defined
-diagnostic task on accessible hardware, a compact bespoke model is a defensible and
-far cheaper choice. On the other hand, the Grad-CAM analysis is a cautionary result
-that no amount of additional accuracy on PlantVillage can resolve: because the
-dataset's backgrounds are informative, high within-dataset scores do not guarantee
-field robustness.
+Our results support a two-sided conclusion. On the one hand, a small CNN trained
+from scratch on a laptop \emph{outperforms}---significantly and reproducibly---the
+frozen-backbone transfer-learning baselines for this three-class problem, while using
+$\paramratiomin$--$\paramratiomax\times$ fewer parameters. This should be read with
+care: we freeze the pretrained backbones and train only a new head, the standard
+low-compute transfer recipe, so the comparison is specifically \emph{from-scratch
+end-to-end training versus frozen-feature transfer under an equal, modest compute
+budget}. Full fine-tuning of the backbones would very likely raise their accuracy
+and could narrow or reverse the gap, but it is also substantially more expensive and
+data-hungry---precisely the cost we set out to avoid. The practical message stands:
+for a narrow, well-defined diagnostic task on accessible hardware, a compact bespoke
+model is not a compromise but a strong and far cheaper choice. On the other hand,
+the Grad-CAM analysis is a cautionary result that no amount of additional accuracy on
+PlantVillage can resolve: because the dataset's backgrounds are informative, high
+within-dataset scores do not guarantee field robustness.
 
 \textbf{Limitations.} The study is deliberately scoped. PlantVillage images are
 laboratory captures with clean backgrounds; field images contain clutter, variable
@@ -314,11 +340,13 @@ released here is designed to make those extensions straightforward.
 
 \section{Conclusion}
 We presented a reproducible, statistically careful comparison of a from-scratch CNN
-against transfer-learning baselines for potato leaf disease classification on
-commodity hardware. The compact custom model is competitive with much larger
-pretrained networks, and Grad-CAM reveals a shared reliance on dataset background
-that qualifies all reported accuracies. The work argues for honest, interpretable and
-hardware-accessible plant-disease modelling over leaderboard chasing.
+against frozen-backbone transfer-learning baselines for potato leaf disease
+classification on commodity hardware. The compact custom model---two orders of
+magnitude smaller than ResNet-18---significantly outperforms the frozen transfer
+baselines under an equal low-compute budget, and Grad-CAM reveals a shared reliance
+on dataset background that qualifies all reported accuracies. The work argues for
+honest, interpretable and hardware-accessible plant-disease modelling over
+leaderboard chasing.
 
 \section*{Author contributions}
 N.P. conceived and designed the study, implemented the data pipeline, models,

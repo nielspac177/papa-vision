@@ -90,17 +90,17 @@ Two gaps in the literature we address:
 - Best config folded into `configs/custom_cnn.yaml`
 - Full trajectory logged → `autoresearch.jsonl` + dashboard + worklog
 
-<span class="small">Best validation macro-F1: **{{HPO_BEST}}%** (see dashboard)</span>
+<span class="small">Best validation macro-F1: **96.9%** (trial 9: lr 1e-3, wd 1e-5, width 24, dropout 0.3, aug 0.5)</span>
 
 ---
 
-## Results — the from-scratch CNN is competitive
+## Results — the from-scratch CNN *wins* 🏆
 
-![w:720](../results/figures/model_comparison.png)
+![w:680](../results/figures/model_comparison.png)
 
-- Custom CNN macro-F1 **{{CUSTOM_F1}}%** vs. best transfer **{{BEST_F1}}%**
-- **McNemar:** {{MCNEMAR_VERDICT}} (*p* = {{MCNEMAR_P}})
-- Transfer learning mostly buys **faster convergence**, not higher final accuracy
+- Custom CNN macro-F1 **96.7%** > best transfer **91.7%** (EfficientNet-B0), with **0.33M params** (7–34× smaller)
+- **McNemar:** custom CNN significantly beats **all three** frozen transfer models (*p* = 0.017, 0.004, 7e-5)
+- Frozen ImageNet features are **not domain-adapted**; the tiny CNN learns leaf-specific features end-to-end
 
 ---
 
@@ -128,13 +128,14 @@ Two gaps in the literature we address:
 ## Discussion
 
 **What we can claim**
-- A **small, scratch-trained CNN on a laptop** is *not* meaningfully beaten by pretrained backbones for this 3-class task.
-- For a narrow diagnostic task on accessible hardware, a **compact bespoke model is a defensible, cheaper choice**.
+- A **small, scratch-trained CNN on a laptop** *significantly outperforms* frozen-backbone transfer learning here — at 7–34× fewer parameters.
+- Under an **equal low-compute budget**, learning domain-specific features end-to-end beats reusing frozen ImageNet features.
 
 **What we must not claim**
 - That high PlantVillage accuracy ⟹ field readiness. **Background bias** undermines that.
+- That transfer learning is "worse" in general — **full fine-tuning** (more compute) would likely close/reverse the gap.
 
-**Limitations:** lab images, easy 3-class task, frozen backbones, no on-device deployment yet.
+**Limitations:** lab images, easy 3-class task, frozen backbones, moderate calibration (ECE 0.12–0.17), no on-device deployment yet.
 
 ---
 

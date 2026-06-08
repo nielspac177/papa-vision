@@ -1,0 +1,116 @@
+{
+  "models": {
+    "custom_cnn": {
+      "n_seeds": 3,
+      "params": {
+        "total": 328587,
+        "trainable": 328587
+      },
+      "accuracy_mean": 0.9731682146542827,
+      "accuracy_std": 0.022820788841585154,
+      "macro_f1_mean": 0.967005520224297,
+      "macro_f1_std": 0.021207000793806306,
+      "ece_mean": 0.12308591837976494,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "efficientnet_b0": {
+      "n_seeds": 3,
+      "params": {
+        "total": 4011391,
+        "trainable": 3843
+      },
+      "accuracy_mean": 0.9494324045407637,
+      "accuracy_std": 0.004729180283752151,
+      "macro_f1_mean": 0.9166093871994994,
+      "macro_f1_std": 0.014067772142014727,
+      "ece_mean": 0.15708852989139696,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "mobilenet_v2": {
+      "n_seeds": 3,
+      "params": {
+        "total": 2227715,
+        "trainable": 3843
+      },
+      "accuracy_mean": 0.9494324045407637,
+      "accuracy_std": 0.007791366806264994,
+      "macro_f1_mean": 0.9161951686723749,
+      "macro_f1_std": 0.011540216504117705,
+      "ece_mean": 0.13354123659793313,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "resnet18": {
+      "n_seeds": 3,
+      "params": {
+        "total": 11178051,
+        "trainable": 1539
+      },
+      "accuracy_mean": 0.9174406604747162,
+      "accuracy_std": 0.01463100813081303,
+      "macro_f1_mean": 0.8653451286667241,
+      "macro_f1_std": 0.02091198011465771,
+      "ece_mean": 0.17147398480935974,
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    }
+  },
+  "mcnemar": {
+    "custom_cnn__vs__efficientnet_b0": {
+      "b": 17,
+      "c": 5,
+      "statistic": 5.0,
+      "p_value": 0.01690053939819336,
+      "method": "exact_binomial"
+    },
+    "custom_cnn__vs__mobilenet_v2": {
+      "b": 16,
+      "c": 3,
+      "statistic": 3.0,
+      "p_value": 0.004425048828125,
+      "method": "exact_binomial"
+    },
+    "custom_cnn__vs__resnet18": {
+      "b": 21,
+      "c": 2,
+      "statistic": 2.0,
+      "p_value": 6.604194641113281e-05,
+      "method": "exact_binomial"
+    },
+    "efficientnet_b0__vs__mobilenet_v2": {
+      "b": 14,
+      "c": 13,
+      "statistic": 0.0,
+      "p_value": 1.0,
+      "method": "chi2_cc"
+    },
+    "efficientnet_b0__vs__resnet18": {
+      "b": 20,
+      "c": 13,
+      "statistic": 1.0909090909090908,
+      "p_value": 0.29626987148428335,
+      "method": "chi2_cc"
+    },
+    "mobilenet_v2__vs__resnet18": {
+      "b": 15,
+      "c": 9,
+      "statistic": 9.0,
+      "p_value": 0.30745625495910645,
+      "method": "exact_binomial"
+    }
+  }
+}
