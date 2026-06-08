@@ -36,6 +36,8 @@
 \providecommand{\ntrain}{--}\providecommand{\nval}{--}\providecommand{\ntest}{--}\providecommand{\ntotal}{--}\providecommand{\nseeds}{--}
 \providecommand{\bestmodel}{--}\providecommand{\bestfone}{--}\providecommand{\besttransfer}{the best transfer model}\providecommand{\besttransferfone}{--}
 \providecommand{\paramratiomin}{--}\providecommand{\paramratiomax}{--}
+\providecommand{\bestfoneCIlo}{--}\providecommand{\bestfoneCIhi}{--}\providecommand{\bestaccCIlo}{--}\providecommand{\bestaccCIhi}{--}
+\providecommand{\traincustom}{--}\providecommand{\trainheadmin}{--}\providecommand{\trainheadmax}{--}
 \providecommand{\hpotrials}{--}\providecommand{\hpobestfone}{--}\providecommand{\hpolr}{--}\providecommand{\hpowd}{--}\providecommand{\hpowidth}{--}\providecommand{\hpodropout}{--}\providecommand{\hpoaug}{--}
 \providecommand{\mcnemarbestp}{--}\providecommand{\mcnemarbestverdict}{--}
 
@@ -67,17 +69,18 @@ classification (healthy, early blight, late blight). On the PlantVillage potato
 subset ($\ntotal$ images) we compare a $\paramsCustom$-parameter custom CNN against
 MobileNetV2, ResNet-18 and EfficientNet-B0 with frozen ImageNet backbones and
 fine-tuned heads, evaluating every model over
-$\nseeds$ random seeds with bootstrap confidence intervals, McNemar significance
-testing and calibration analysis. Strikingly, the from-scratch custom CNN attains
+$\nseeds$ random seeds, reporting across-seed standard deviations and non-parametric
+bootstrap confidence intervals, with McNemar significance testing and calibration
+analysis. Strikingly, the from-scratch custom CNN attains
 $\foneCustom\%$ macro-F1, \emph{exceeding} the strongest transfer baseline
 (\besttransfer{}, $\besttransferfone\%$); paired McNemar tests confirm that it
 significantly outperforms all three frozen-backbone transfer models ($p<0.05$)
 while using roughly $\paramratiomin$--$\paramratiomax\times$ fewer parameters. The
 result indicates that, under an equal low-compute budget, learning compact
 domain-specific features end-to-end beats reusing frozen ImageNet features. Grad-CAM
-saliency maps nonetheless reveal that all models partly attend to image background
-rather than leaf lesions, exposing the well-documented background bias of
-PlantVillage and tempering the optimistic accuracies. We release a fully
+saliency maps nonetheless indicate that all models partly attend to image background
+rather than leaf lesions, qualitatively consistent with the well-documented
+background bias of PlantVillage and tempering the optimistic accuracies. We release a fully
 reproducible pipeline---pinned environment, fixed seeds, configuration-driven
 experiments and a one-command build of this manuscript---to support honest,
 hardware-accessible plant-disease research.
@@ -115,9 +118,10 @@ disease classification?} Our contributions are:
   CPU or Apple-Silicon hardware, benchmarked head-to-head against transfer-learning
   baselines (MobileNetV2, ResNet-18 and EfficientNet-B0 with frozen ImageNet
   backbones and fine-tuned classification heads).
-  \item A statistically rigorous evaluation---multi-seed runs, bootstrap 95\%
-  confidence intervals, and McNemar's paired test on a shared test
-  set~\cite{dietterich1998mcnemar}---rather than a single accuracy number.
+  \item A statistically rigorous evaluation---multi-seed runs with across-seed
+  standard deviations, per-run bootstrap 95\% confidence intervals, and McNemar's
+  paired test on a shared test set~\cite{dietterich1998mcnemar}---rather than a
+  single accuracy number.
   \item A calibration analysis (expected calibration error and reliability
   diagrams)~\cite{guo2017calibration}, seldom reported in plant-disease work.
   \item A Grad-CAM~\cite{selvaraju2017gradcam} interpretability study that probes
@@ -208,10 +212,13 @@ no GPU is used.
 
 \subsection{Evaluation and statistics}
 For each model we report accuracy and macro-averaged F1 (robust to class imbalance),
-each as a mean over $\nseeds$ random seeds. We attach non-parametric 95\% confidence
-intervals by bootstrap resampling of the test set, and we compare models pairwise on
-their shared test set with McNemar's test~\cite{dietterich1998mcnemar}, using the
-exact binomial form when the number of discordant predictions is small. We assess
+each as a mean and standard deviation over $\nseeds$ random seeds (Table~\ref{tab:results},
+Fig.~\ref{fig:comparison}). To quantify within-test-set sampling uncertainty we
+additionally compute non-parametric 95\% confidence intervals by bootstrap resampling
+of the test set for every run; these are released with the per-run metrics and the
+best model's intervals are quoted in the Results. We compare models pairwise on their
+shared test set with McNemar's test~\cite{dietterich1998mcnemar}, using the exact
+binomial form when the number of discordant predictions is small. We assess
 calibration with the expected calibration error (ECE) and reliability
 diagrams~\cite{guo2017calibration}. Finally we compute Grad-CAM~\cite{selvaraju2017gradcam}
 saliency maps to inspect which image regions drive each prediction.
@@ -226,11 +233,15 @@ laboratory-controlled nature of PlantVillage. The headline result, however, is t
 the from-scratch custom CNN is not merely competitive but the \emph{best} performer:
 with only $\paramsCustom$ parameters it attains $\foneCustom\%$ macro-F1, ahead of
 the strongest transfer baseline (\besttransfer{}, $\besttransferfone\%$) and well
-ahead of ResNet-18 (Fig.~\ref{fig:comparison}). Paired McNemar tests between the
-custom CNN and each frozen-backbone transfer model are all significant
-($p=\mcnemarbestp$ versus \besttransfer{}, and smaller against the others; see the
-repository's \texttt{summary.json}), so the advantage is statistically reliable on
-this shared test set and not an artefact of a single seed. The interpretation is
+ahead of ResNet-18 (Fig.~\ref{fig:comparison}). Paired McNemar tests on the shared
+(seed-0) test set find the custom CNN significantly better than each frozen-backbone
+baseline ($p=\mcnemarbestp$ versus \besttransfer{}, and smaller against the others;
+see the repository's \texttt{summary.json}). A non-parametric bootstrap on that test
+set places the custom CNN's macro-F1 at $[\bestfoneCIlo, \bestfoneCIhi]\%$ (95\% CI)
+and its accuracy at $[\bestaccCIlo, \bestaccCIhi]\%$. The significance test is
+computed on a single seed's predictions, but the ranking is not seed-specific: across
+all three seeds the custom CNN's mean macro-F1 ($\foneCustom\%$) exceeds every
+baseline mean. The interpretation is
 that, when only a small classification head can be trained on top of a frozen
 ImageNet backbone, those backbones contribute generic features poorly matched to
 leaf pathology, whereas the compact CNN---trained end-to-end---learns features
@@ -255,11 +266,17 @@ level.}
 \end{figure}
 
 \subsection{Confusion structure}
-The confusion matrices (Fig.~\ref{fig:confusion}) show that the dominant error mode,
-where it occurs, is confusion between the two disease classes rather than between
-disease and health---an operationally benign pattern, since both diseased states
-warrant intervention. The minority healthy class is recognised reliably, indicating
-that class weighting successfully counteracts the imbalance.
+The confusion matrices (Fig.~\ref{fig:confusion}) are informative beyond the headline
+accuracy. For the best model (custom CNN) the few errors are predominantly
+disease-versus-disease confusions---an operationally benign pattern, since both
+diseased states warrant intervention. The weaker frozen-transfer models, by contrast,
+additionally misclassify a non-trivial number of \emph{late-blight} leaves as
+\emph{healthy} (for example, 10--12 of 150 for MobileNetV2 and ResNet-18): a far more
+concerning false-negative mode, because it would tell a farmer an infected plant is
+fine. This asymmetry---the from-scratch model not only scoring higher but failing
+more safely---reinforces the case for the compact end-to-end model. The minority
+healthy class is recognised reliably across models, indicating that class weighting
+counteracts the imbalance.
 
 \begin{figure}[t]
 \centering
@@ -271,15 +288,17 @@ row-normalised rate).}
 
 \subsection{Calibration}
 Beyond accuracy, a deployable diagnostic should report trustworthy confidences.
-Fig.~\ref{fig:reliability} shows reliability diagrams and ECE values. All models are
-\emph{moderately overconfident}: the custom CNN's ECE is $\eceCustom$, and the
-transfer models range similarly (roughly $0.13$--$0.17$). The bars sit below the
-diagonal at high confidence, the classic signature of overconfidence reported for
-modern networks. This is an honest limitation: while the custom CNN is both the most
-accurate and the best calibrated of the four, none is calibrated well enough to take
-its raw confidences at face value, and a deployed system would benefit from
-post-hoc calibration (e.g.\ temperature scaling) before using confidence to defer
-uncertain cases to a human expert.
+Fig.~\ref{fig:reliability} shows reliability diagrams and ECE values (for a
+representative seed; Table~\ref{tab:results} reports the seed-averaged ECE). All
+models are imperfectly calibrated, with seed-averaged ECE ranging from $\eceCustom$
+(custom CNN, the best calibrated) to about $0.17$ (ResNet-18). The diagrams indicate
+that the miscalibration is driven mainly by mid-confidence bins, where empirical
+accuracy and predicted confidence diverge rather than by uniform over-confidence.
+This is an honest limitation: while the custom CNN is both the most accurate and the
+best calibrated of the four, none is calibrated well enough to take its raw
+confidences at face value, and a deployed system would benefit from post-hoc
+calibration (e.g.\ temperature scaling) before using confidence to defer uncertain
+cases to a human expert.
 
 \begin{figure}[t]
 \centering
@@ -291,20 +310,24 @@ calibration; bars show accuracy within each confidence bin.}
 
 \subsection{Where do the models look?}
 Grad-CAM saliency maps (Fig.~\ref{fig:gradcam}) provide the study's most important
-qualitative finding. While the models do place attention on visible lesions for the
-disease classes, they also assign substantial saliency to leaf margins and to the
-uniform background. This is direct visual evidence of the background bias that
-Noyan~\cite{noyan2022uncovering} and Barbedo~\cite{barbedo2018impact} warned of: part
-of the models' apparent skill derives from dataset artefacts rather than from
-pathology. The headline accuracies should therefore be read as an upper bound on
-real-world, in-field performance.
+qualitative observation. While the models do place attention on visible lesions for
+the disease classes, they also assign substantial saliency to leaf margins and to the
+uniform background. We show representative single examples per class, so this is
+illustrative rather than a quantitative attribution measurement; nonetheless it is
+visually consistent with the background bias that
+Noyan~\cite{noyan2022uncovering} and Barbedo~\cite{barbedo2018impact} documented,
+suggesting that part of the models' apparent skill may derive from dataset artefacts
+rather than from pathology. Pending a quantitative test (e.g.\ background ablation),
+the headline accuracies are prudently read as an upper bound on real-world, in-field
+performance.
 
 \begin{figure}[t]
 \centering
 \IfFileExists{figures/gradcam_panel.png}{\includegraphics[width=0.95\linewidth]{gradcam_panel.png}}{\fbox{\parbox{0.6\linewidth}{\centering\vspace{1cm}[gradcam\_panel.png]\vspace{1cm}}}}
-\caption{Grad-CAM overlays for one example per class. Warm regions are the most
-influential for the predicted class. Attention spills onto background, evidencing the
-PlantVillage background bias.}
+\caption{Grad-CAM overlays for one representative example per class. Warm regions are
+the most influential for the predicted class. Attention spills onto leaf margins and
+background, illustrating a reliance that is consistent with the PlantVillage
+background bias (qualitative; not a quantitative attribution metric).}
 \label{fig:gradcam}
 \end{figure}
 
@@ -316,7 +339,13 @@ $\paramratiomin$--$\paramratiomax\times$ fewer parameters. This should be read w
 care: we freeze the pretrained backbones and train only a new head, the standard
 low-compute transfer recipe, so the comparison is specifically \emph{from-scratch
 end-to-end training versus frozen-feature transfer under an equal, modest compute
-budget}. Full fine-tuning of the backbones would very likely raise their accuracy
+budget}. There is also an asymmetry worth stating plainly: because their backbones
+are frozen, the baselines update only $\trainheadmin$--$\trainheadmax$ head parameters
+during training, whereas the from-scratch CNN optimises all $\traincustom$ of its
+weights. Our ``fewer parameters'' advantage therefore refers to \emph{total} model
+size---what must be stored and executed at inference---not the number of weights
+updated during training. Full fine-tuning of the backbones would very likely raise
+their accuracy
 and could narrow or reverse the gap, but it is also substantially more expensive and
 data-hungry---precisely the cost we set out to avoid. The practical message stands:
 for a narrow, well-defined diagnostic task on accessible hardware, a compact bespoke
@@ -341,9 +370,10 @@ released here is designed to make those extensions straightforward.
 \section{Conclusion}
 We presented a reproducible, statistically careful comparison of a from-scratch CNN
 against frozen-backbone transfer-learning baselines for potato leaf disease
-classification on commodity hardware. The compact custom model---two orders of
-magnitude smaller than ResNet-18---significantly outperforms the frozen transfer
-baselines under an equal low-compute budget, and Grad-CAM reveals a shared reliance
+classification on commodity hardware. The compact custom model---more than an order
+of magnitude smaller than ResNet-18 ($\paramratiomax\times$ fewer parameters)---%
+significantly outperforms the frozen transfer baselines under an equal low-compute
+budget, and Grad-CAM reveals a shared reliance
 on dataset background that qualifies all reported accuracies. The work argues for
 honest, interpretable and hardware-accessible plant-disease modelling over
 leaderboard chasing.

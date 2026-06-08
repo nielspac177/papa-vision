@@ -85,6 +85,25 @@ def main() -> None:
     macros.append(num_macro("bestmodel", PRETTY[best_model]))
     macros.append(num_macro("bestfone", f"{models[best_model]['macro_f1_mean'] * 100:.1f}"))
 
+    # Representative-run (seed-0) bootstrap 95% CIs for the best model, so the
+    # "bootstrap CI" methodology is actually surfaced to the reader.
+    best_test = sorted((METRICS_DIR / "test").glob(f"{best_model}_seed*.json"))
+    best_test = [p for p in best_test if "_smoke" not in p.name]
+    if best_test:
+        bt = load_json(best_test[0])
+        fci, aci = bt["macro_f1_ci"], bt["accuracy_ci"]
+        macros.append(num_macro("bestfoneCIlo", f"{fci['ci_low'] * 100:.1f}"))
+        macros.append(num_macro("bestfoneCIhi", f"{fci['ci_high'] * 100:.1f}"))
+        macros.append(num_macro("bestaccCIlo", f"{aci['ci_low'] * 100:.1f}"))
+        macros.append(num_macro("bestaccCIhi", f"{aci['ci_high'] * 100:.1f}"))
+
+    # Trainable-parameter counts (the frozen baselines train only a small head).
+    macros.append(num_macro("traincustom", f"{models['custom_cnn']['params']['trainable']:,}".replace(",", "{,}")))
+    tr_trainable = [models[m]["params"]["trainable"] for m in present if m != "custom_cnn"]
+    if tr_trainable:
+        macros.append(num_macro("trainheadmin", f"{min(tr_trainable):,}".replace(",", "{,}")))
+        macros.append(num_macro("trainheadmax", f"{max(tr_trainable):,}".replace(",", "{,}")))
+
     # Autoresearch winner.
     ar_path = METRICS_DIR / "autoresearch.json"
     if ar_path.exists():
