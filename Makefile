@@ -55,7 +55,7 @@ figures:
 	$(PY) scripts/make_figures.py
 
 autoresearch:
-	$(PY) scripts/autoresearch_loop.py --trials 20
+	$(PY) scripts/autoresearch_loop.py --trials 10
 
 paper:
 	$(MAKE) -C paper

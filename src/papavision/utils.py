@@ -68,6 +68,10 @@ def set_seed(seed: int, deterministic: bool = True) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    # Explicitly seed the MPS generator too (the primary device on Apple Silicon),
+    # mirroring the CUDA path rather than relying on global-generator propagation.
+    if torch.backends.mps.is_available():
+        torch.mps.manual_seed(seed)
     if deterministic:
         # cuDNN knobs are harmless no-ops on CPU/MPS.
         torch.backends.cudnn.deterministic = True

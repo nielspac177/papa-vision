@@ -64,12 +64,20 @@ class GradCAM:
         """
         if input_tensor.dim() == 3:
             input_tensor = input_tensor.unsqueeze(0)
+        # The input MUST be part of the autograd graph. For the transfer models the
+        # entire backbone is frozen (requires_grad=False); without a grad-requiring
+        # input, the target conv layer's output has no grad_fn, the backward hook
+        # never fires, and self._gradients stays None. Marking the input as
+        # grad-requiring makes gradients flow back to the target layer for both the
+        # from-scratch CNN and the frozen-backbone backbones.
+        input_tensor = input_tensor.clone().detach().requires_grad_(True)
         self.model.zero_grad()
-        logits = self.model(input_tensor)
-        if target_class is None:
-            target_class = int(logits.argmax(dim=1).item())
-        score = logits[0, target_class]
-        score.backward()
+        with torch.enable_grad():
+            logits = self.model(input_tensor)
+            if target_class is None:
+                target_class = int(logits.argmax(dim=1).item())
+            score = logits[0, target_class]
+            score.backward()
 
         # Grad-CAM: channel weights = global-average-pooled gradients.
         grads = self._gradients          # (1, K, h, w)
