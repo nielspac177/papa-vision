@@ -1,7 +1,9 @@
 # papa-vision — reproducible build automation.
 # Every target runs inside the pinned uv environment (Python 3.12 + torch/MPS).
 
-PY      := uv run python
+# PYTHONPATH=src makes `python -m papavision.*` work even if uv rebuilds the
+# editable install between runs (the package also installs normally via uv sync).
+PY      := PYTHONPATH=src uv run python
 CONFIGS := configs/custom_cnn.yaml configs/mobilenet_v2.yaml configs/resnet18.yaml configs/efficientnet_b0.yaml
 SEEDS   := 0 1 2
 CONFIG  ?= configs/custom_cnn.yaml   # default for `make train`

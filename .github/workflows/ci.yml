@@ -27,4 +27,4 @@ jobs:
         run: uv run pytest -v
 
       - name: Smoke-test a 1-epoch training run on synthetic data
-        run: uv run python -m papavision.train --config configs/custom_cnn.yaml --seed 0 --smoke
+        run: PYTHONPATH=src uv run python -m papavision.train --config configs/custom_cnn.yaml --seed 0 --smoke

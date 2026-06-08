@@ -44,6 +44,9 @@ packages = ["src/papavision"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+# Put the package on the path directly so the suite never depends on the state
+# of the editable install (which uv can rebuild between runs).
+pythonpath = ["src"]
 
 [tool.uv]
 # Keep resolution reproducible across machines.
