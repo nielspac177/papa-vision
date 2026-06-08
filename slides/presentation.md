@@ -62,7 +62,7 @@ Two gaps in the literature we address:
 
 | Model | Source | Params |
 |-------|--------|--------|
-| **Custom CNN** | **from scratch** | ~0.6 M |
+| **Custom CNN** | **from scratch** | ~0.33 M |
 | MobileNetV2 | ImageNet, frozen + new head | ~2.2 M |
 | ResNet-18 | ImageNet, frozen + new head | ~11 M |
 | EfficientNet-B0 | ImageNet, frozen + new head | ~4 M |
@@ -109,9 +109,9 @@ Two gaps in the literature we address:
 ![w:560](../results/figures/confusion_matrices.png)
 ![w:560](../results/figures/reliability_diagrams.png)
 
-- Errors are mostly **disease↔disease** (operationally benign — both need action)
-- Healthy minority class recognised reliably (class weighting works)
-- Confidences are **reasonably calibrated** (ECE reported per model)
+- Custom CNN errors are mostly **disease↔disease** (operationally benign — both need action)
+- ⚠️ Frozen transfer models misclassify some **late blight → healthy** (dangerous false negatives) — the custom CNN also *fails more safely*
+- Models are **moderately miscalibrated** (ECE 0.12–0.17); custom CNN best-calibrated — post-hoc temperature scaling would help
 
 ---
 
@@ -120,8 +120,8 @@ Two gaps in the literature we address:
 ![w:820](../results/figures/gradcam_panel.png)
 
 - Models attend to lesions **but also to leaf margins and background**
-- Direct visual evidence of PlantVillage's **background bias** (Noyan 2022; Barbedo 2018)
-- ⟹ High lab accuracy is an **upper bound** on real field performance
+- Qualitative evidence (representative examples) **consistent with** PlantVillage's **background bias** (Noyan 2022; Barbedo 2018)
+- ⟹ High lab accuracy is an **upper bound** on real field performance (pending a quantitative background-ablation test)
 
 ---
 
@@ -141,15 +141,15 @@ Two gaps in the literature we address:
 
 ## Conclusions & reproducibility
 
-- Compact from-scratch CNN ≈ transfer learning here; **transfer mainly speeds convergence**.
-- **Grad-CAM exposes a shared reliance on dataset background** — honesty over leaderboard chasing.
+- Compact from-scratch CNN **significantly beats frozen transfer** here (equal low-compute budget); full fine-tuning would cost more.
+- **Grad-CAM suggests a shared reliance on dataset background** — honesty over leaderboard chasing.
 - Everything reproduces with **one command**: pinned `uv` env, fixed seeds, config-driven runs, auto-generated figures & paper.
 
 ```bash
 make setup && make data && make train-all && make eval && make figures && make paper
 ```
 
-**Repo:** github.com/nielspacheco1997/papa-vision
+**Repo:** github.com/nielspac177/papa-vision
 
 ---
 

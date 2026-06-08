@@ -6,7 +6,7 @@ interpretability.**
 
 Author: **Niels Pacheco** · MIA-07 *Redes Neuronales y Aprendizaje Profundo* (Sección C) · Final project, 2026.
 
-[![CI](https://github.com/nielspacheco1997/papa-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/nielspacheco1997/papa-vision/actions)
+[![CI](https://github.com/nielspac177/papa-vision/actions/workflows/ci.yml/badge.svg)](https://github.com/nielspac177/papa-vision/actions)
 ![Python](https://img.shields.io/badge/python-3.12-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
@@ -149,7 +149,7 @@ fallback) into `data/potato/`. See `data/README.md` for details and licensing.
   title  = {papa-vision: Lightweight CNNs for potato leaf disease diagnosis on commodity hardware},
   year   = {2026},
   note   = {MIA-07 Redes Neuronales y Aprendizaje Profundo, Final Project},
-  url    = {https://github.com/nielspacheco1997/papa-vision}
+  url    = {https://github.com/nielspac177/papa-vision}
 }
 ```
 
