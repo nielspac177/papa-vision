@@ -24,22 +24,22 @@ style: |
 <!-- _header: "" -->
 <!-- _footer: "" -->
 
-# 🥔🔬 CNN ligeras para el diagnóstico de enfermedades en hoja de papa con hardware de consumo
+# CNN ligeras para el diagnóstico de enfermedades en hoja de papa con hardware de consumo
 
-### Entrenamiento desde cero vs. aprendizaje por transferencia, con interpretabilidad Grad-CAM
+### Entrenamiento desde cero frente a aprendizaje por transferencia, con interpretabilidad Grad-CAM
 
 **Niels Pacheco**
-MIA-07 — Redes Neuronales y Aprendizaje Profundo (Sección C)
+MIA-07: Redes Neuronales y Aprendizaje Profundo (Sección C)
 Proyecto Final · Junio de 2026
 
 ---
 
 ## ¿Por qué la papa? ¿Por qué ahora?
 
-- La **papa** (*Solanum tuberosum*) se domesticó en los **Andes peruanos** hace ~7,000 años y es el **3.er cultivo alimentario** más importante del mundo.
-- El **tizón tardío** (*Phytophthora infestans*) causó la hambruna irlandesa y puede **arrasar un campo en días**; el **tizón temprano** (*Alternaria solani*) también está muy extendido.
-- El diagnóstico experto es **escaso en las comunidades rurales andinas** — justo donde se concentra el cultivo.
-- El aprendizaje profundo podría **democratizar el diagnóstico desde una sola foto de hoja** — *si* corre en el hardware que los agricultores realmente tienen.
+- La papa (*Solanum tuberosum*) se domesticó en los Andes peruanos hace unos 7,000 años y es el tercer cultivo alimentario más importante del mundo.
+- El tizón tardío (*Phytophthora infestans*) causó la hambruna irlandesa y puede arrasar un campo en pocos días; el tizón temprano (*Alternaria solani*) también está muy extendido.
+- El diagnóstico experto es escaso en las comunidades rurales andinas, justo donde se concentra el cultivo.
+- El aprendizaje profundo podría democratizar el diagnóstico a partir de una sola foto de hoja, siempre que corra en el hardware que los agricultores realmente tienen.
 
 ---
 
@@ -49,28 +49,28 @@ Proyecto Final · Junio de 2026
 
 Dos vacíos en la literatura que abordamos:
 
-1. La mayoría de los sistemas asume **GPU + grandes redes preentrenadas**.
-2. Las exactitudes destacadas rara vez vienen con **intervalos de confianza, calibración, o una verificación de que el modelo mire la enfermedad**.
+1. La mayoría de los sistemas asume GPU y grandes redes preentrenadas.
+2. Las exactitudes reportadas rara vez vienen con intervalos de confianza, calibración, o una verificación de que el modelo mire la enfermedad.
 
 ---
 
 ## Contribuciones
 
-1. Una **CNN propia compacta** (0.33 M parámetros) entrenable de extremo a extremo en CPU/Apple Silicon, comparada de frente con transferencia (MobileNetV2, ResNet-18, EfficientNet-B0 congeladas).
-2. Una **evaluación estadísticamente rigurosa**: múltiples semillas, **IC bootstrap al 95%** y **prueba pareada de McNemar** — no un único número.
-3. Un **análisis de calibración** (ECE + diagramas de fiabilidad), rara vez reportado en este dominio.
-4. Un estudio de **interpretabilidad Grad-CAM** que sondea el **sesgo de fondo** de PlantVillage.
-5. Una **publicación de código abierto totalmente reproducible** (dependencias fijadas, semillas fijas, un comando).
+1. Una CNN propia compacta (0.33 M parámetros) entrenable de extremo a extremo en CPU o Apple Silicon, comparada con tres modelos de transferencia (MobileNetV2, ResNet-18 y EfficientNet-B0 con red base congelada).
+2. Una evaluación con varias semillas, intervalos de confianza por bootstrap al 95% y prueba pareada de McNemar, en lugar de un único número.
+3. Un análisis de calibración (ECE y diagramas de fiabilidad), poco frecuente en este dominio.
+4. Un estudio de interpretabilidad con Grad-CAM que examina el sesgo de fondo de PlantVillage.
+5. Una publicación de código abierto reproducible: dependencias fijadas, semillas fijas, un comando.
 
 ---
 
 ## Datos: PlantVillage (subconjunto de papa)
 
-- **2,152 imágenes**, 3 clases: **sana / tizón temprano / tizón tardío**
-- Fotos controladas en laboratorio, **clases desbalanceadas** (pocas sanas)
-- **Partición estratificada fija** 70/15/15 → **1506 / 323 / 323** imágenes
-- *El mismo conjunto de prueba para cada modelo* — requisito para una prueba de significancia válida
-- ⚠️ Los fondos son muy uniformes — volveremos a esto al final
+- 2,152 imágenes, 3 clases: sana, tizón temprano y tizón tardío
+- Fotos controladas en laboratorio, con clases desbalanceadas (pocas sanas)
+- Partición estratificada fija 70/15/15, que da 1506 / 323 / 323 imágenes
+- El mismo conjunto de prueba para todos los modelos, requisito para una prueba de significancia válida
+- Los fondos son muy uniformes, algo que retomamos al final
 
 ---
 
@@ -78,7 +78,7 @@ Dos vacíos en la literatura que abordamos:
 
 ![h:330](../results/figures/dataset_samples.png)
 
-<span class="small">Imágenes representativas del conjunto de prueba reservado. Note los fondos uniformes: una propiedad que, como mostraremos, los modelos pueden explotar.</span>
+<span class="small">Imágenes representativas del conjunto de prueba reservado. Los fondos uniformes son una propiedad que, como mostramos, los modelos pueden explotar.</span>
 
 ---
 
@@ -91,53 +91,43 @@ Dos vacíos en la literatura que abordamos:
 | ResNet-18 | ImageNet, congelada + cabezal nuevo | ~11 M |
 | EfficientNet-B0 | ImageNet, congelada + cabezal nuevo | ~4 M |
 
-- Mismo preprocesamiento y normalización ImageNet para todos → **sólo cambian arquitectura/pesos**
-- En transferencia: **red base congelada**, se entrena sólo un cabezal de clasificación nuevo
+- Mismo preprocesamiento y normalización ImageNet para todos, así sólo cambian la arquitectura y los pesos
+- En transferencia: red base congelada y se entrena sólo un cabezal de clasificación nuevo
 
 ---
 
 ## La CNN propia (desde cero)
 
-- **4 bloques convolucionales**: cada bloque = 2 × (Conv 3×3 + BatchNorm + ReLU) + max pooling
-- Anchos de canal **24 → 48 → 96 → 96** (crecen y se estabilizan para mantenerla compacta)
-- **Global average pooling** → dropout 0.3 → clasificador lineal
-- **328,587 parámetros totales**, *todos entrenables* de extremo a extremo
-- Entradas 128×128, normalización ImageNet — idéntica a las líneas base
+- 4 bloques convolucionales: cada bloque es 2 × (Conv 3×3 + BatchNorm + ReLU) seguido de max pooling
+- Anchos de canal 24, 48, 96, 96 (crecen y luego se estabilizan para mantenerla compacta)
+- Global average pooling, dropout 0.3 y un clasificador lineal
+- 328,587 parámetros totales, todos entrenables de extremo a extremo
+- Entradas de 128×128 y normalización ImageNet, igual que las líneas base
 
 ---
 
-## Metodología — entrenamiento
+## Metodología: entrenamiento
 
-- **AdamW** + planificación coseno de la tasa de aprendizaje
-- Entropía cruzada **ponderada por clase** + **suavizado de etiquetas** (contra el desbalance)
-- **Parada temprana** sobre el F1 macro de validación
-- **3 semillas aleatorias** por modelo → reportamos media ± desviación estándar
-- Entrenado por completo en **Apple Silicon (MPS), sin GPU**
-
----
-
-## Metodología — evaluación y estadística
-
-- **Exactitud** y **F1 macro** (robusto al desbalance), media ± DE sobre 3 semillas
-- **IC bootstrap** no paramétrico al 95% por corrida (incertidumbre dentro del test)
-- **Prueba pareada de McNemar** sobre el test compartido (binomial exacta si hay pocas discordancias)
-- **Calibración**: error de calibración esperado (ECE) + diagramas de fiabilidad
-- **Grad-CAM** para ver *dónde mira* cada modelo
+- AdamW con planificación coseno de la tasa de aprendizaje
+- Entropía cruzada ponderada por clase y suavizado de etiquetas, para contrarrestar el desbalance
+- Parada temprana sobre el F1 macro de validación
+- 3 semillas aleatorias por modelo; reportamos media y desviación estándar
+- Hiperparámetros elegidos por búsqueda sobre el conjunto de validación (el de prueba nunca se consulta)
+- Entrenado por completo en Apple Silicon (MPS), sin GPU
 
 ---
 
-## `/autoresearch`: búsqueda autónoma de hiperparámetros
+## Metodología: evaluación y estadística
 
-- **Búsqueda aleatoria** con semilla, 10 ensayos, seleccionando por F1 macro de **validación** (nunca el test)
-- Espacio: tasa de aprendizaje, decaimiento de pesos, ancho, dropout, intensidad de aumentación
-- La mejor configuración se integró en `configs/custom_cnn.yaml`
-- Trayectoria completa registrada → `autoresearch.jsonl` + dashboard + bitácora
-
-<span class="small">Mejor F1 macro de validación: **96.9%** (ensayo 9: lr 1e-3, wd 1e-5, ancho 24, dropout 0.3, aug 0.5)</span>
+- Exactitud y F1 macro (robusto al desbalance), como media y desviación estándar sobre 3 semillas
+- Intervalos de confianza por bootstrap no paramétrico al 95% por corrida
+- Prueba pareada de McNemar sobre el conjunto de prueba compartido (binomial exacta cuando hay pocas discordancias)
+- Calibración con ECE y diagramas de fiabilidad
+- Grad-CAM para ver dónde mira cada modelo
 
 ---
 
-## Resultados — tabla principal
+## Resultados: tabla principal
 
 | Modelo | Params | Exactitud (%) | F1 macro (%) | ECE |
 |--------|-------:|:---:|:---:|:---:|
@@ -146,17 +136,17 @@ Dos vacíos en la literatura que abordamos:
 | MobileNetV2 | 2,227,715 | 94.9 ± 0.8 | 91.6 ± 1.2 | 0.134 |
 | ResNet-18 | 11,178,051 | 91.7 ± 1.5 | 86.5 ± 2.1 | 0.171 |
 
-<span class="small">Media ± DE sobre 3 semillas. La CNN propia es la **mejor en exactitud, F1 macro y calibración** — con 7–34× menos parámetros.</span>
+<span class="small">Media y desviación estándar sobre 3 semillas. La CNN propia es la mejor en exactitud, F1 macro y calibración, con 7 a 34 veces menos parámetros.</span>
 
 ---
 
-## Resultados — la CNN desde cero *gana* 🏆
+## Resultados: la CNN desde cero rinde mejor
 
 ![h:330](../results/figures/model_comparison.png)
 
-- F1 macro **96.7%** > mejor transferencia **91.7%** (EfficientNet-B0)
-- **McNemar:** supera significativamente a **los tres** modelos por transferencia (*p* = 0.017, 0.004, 7e-5)
-- Las características congeladas de ImageNet **no están adaptadas al dominio**
+- F1 macro de 96.7%, frente al 91.7% de la mejor transferencia (EfficientNet-B0)
+- McNemar: supera de forma significativa a los tres modelos de transferencia (p = 0.017, 0.004, 7e-5)
+- Las características congeladas de ImageNet no están adaptadas al dominio
 
 ---
 
@@ -164,8 +154,8 @@ Dos vacíos en la literatura que abordamos:
 
 ![h:340](../results/figures/training_curves.png)
 
-- Las redes base preentrenadas **convergen rápido**; la CNN desde cero converge más lento a un nivel similar
-- Todos alcanzan una **meseta alta** dentro del presupuesto de entrenamiento
+- Las redes base preentrenadas convergen rápido; la CNN desde cero converge más lento hasta un nivel similar
+- Todos alcanzan una meseta alta dentro del presupuesto de entrenamiento
 
 ---
 
@@ -173,9 +163,9 @@ Dos vacíos en la literatura que abordamos:
 
 ![h:300](../results/figures/confusion_matrices.png)
 
-- Los errores de la CNN propia son sobre todo **enfermedad ↔ enfermedad** (operativamente benignos — ambos requieren acción)
-- ⚠️ La transferencia confunde algo de **tizón tardío → sana** (10–12 de 150): falsos negativos peligrosos
-- La CNN propia no sólo puntúa más alto, también **falla de forma más segura**
+- Los errores de la CNN propia son casi todos confusiones entre las dos enfermedades, algo operativamente benigno porque ambas requieren acción
+- La transferencia, en cambio, clasifica algo de tizón tardío como sana (10 a 12 de 150): falsos negativos peligrosos
+- La CNN propia no sólo puntúa más alto, también falla de forma más segura
 
 ---
 
@@ -183,54 +173,54 @@ Dos vacíos en la literatura que abordamos:
 
 ![h:300](../results/figures/reliability_diagrams.png)
 
-- Todos los modelos están **moderadamente mal calibrados** (ECE 0.12–0.17)
-- La **CNN propia es la mejor calibrada**; la mala calibración viene sobre todo de la confianza media
-- Un sistema desplegado se beneficiaría del **escalado por temperatura** antes de confiar en las probabilidades
+- Todos los modelos están moderadamente mal calibrados (ECE entre 0.12 y 0.17)
+- La CNN propia es la mejor calibrada; la mala calibración viene sobre todo de la confianza media
+- Un sistema desplegado se beneficiaría del escalado por temperatura antes de confiar en las probabilidades
 
 ---
 
-## 🔍 ¿Dónde miran los modelos?
+## ¿Dónde miran los modelos?
 
 ![h:330](../results/figures/gradcam_panel.png)
 
-- Atienden a las lesiones **pero también a bordes de la hoja y al fondo**
-- Consistente con el **sesgo de fondo** de PlantVillage (Noyan 2022; Barbedo 2018)
-- ⟹ La exactitud de laboratorio es una **cota superior** del desempeño en campo
+- Atienden a las lesiones, pero también a los bordes de la hoja y al fondo
+- Es consistente con el sesgo de fondo de PlantVillage (Noyan 2022; Barbedo 2018)
+- Por tanto, la exactitud de laboratorio es una cota superior del desempeño en campo
 
 ---
 
 ## Discusión
 
 **Lo que sí podemos afirmar**
-- Una CNN pequeña entrenada **desde cero en una laptop** *supera significativamente* a la transferencia de red base congelada — con 7–34× menos parámetros.
-- Bajo un **presupuesto de cómputo igualmente bajo**, aprender características del dominio de extremo a extremo vence a reutilizar características congeladas de ImageNet.
+- Una CNN pequeña entrenada desde cero en una laptop supera de forma significativa a la transferencia de red base congelada, con 7 a 34 veces menos parámetros.
+- Bajo un presupuesto de cómputo igualmente bajo, aprender características del dominio de extremo a extremo vence a reutilizar características congeladas de ImageNet.
 
 **Lo que no debemos afirmar**
-- Que la alta exactitud en PlantVillage ⟹ listo para el campo. El **sesgo de fondo** lo socava.
-- Que la transferencia sea "peor" en general — el **ajuste fino completo** probablemente cerraría la brecha.
+- Que una alta exactitud en PlantVillage signifique que está listo para el campo. El sesgo de fondo lo impide.
+- Que la transferencia sea peor en general: el ajuste fino completo probablemente cerraría la brecha.
 
 ---
 
 ## Limitaciones y trabajo futuro
 
 **Limitaciones**
-- Imágenes de **laboratorio** con fondos limpios; en campo esperamos degradación en todos los modelos.
-- Tarea de **3 clases** comparativamente fácil → comprime las diferencias entre arquitecturas.
-- Redes base **congeladas** (no ajuste fino completo); calibración moderada; sin despliegue en dispositivo aún.
+- Imágenes de laboratorio con fondos limpios; en campo esperamos que todos los modelos se degraden.
+- Tarea de 3 clases comparativamente fácil, lo que comprime las diferencias entre arquitecturas.
+- Redes base congeladas (no ajuste fino completo), calibración moderada y sin despliegue en dispositivo todavía.
 
 **Trabajo futuro**
-- Evaluación con **imágenes de campo** · eliminación/segmentación de fondo · benchmarking de **latencia y energía en dispositivo**
+- Evaluación con imágenes de campo, eliminación o segmentación del fondo, y medición de latencia y energía en dispositivo.
 
 ---
 
 ## Conclusiones y reproducibilidad
 
-- La CNN compacta entrenada **desde cero supera significativamente** a la transferencia congelada aquí (presupuesto de bajo cómputo igual); el ajuste fino completo costaría más.
-- **Grad-CAM** revela una dependencia compartida del fondo del conjunto — **honestidad** por encima de perseguir el ranking.
-- Todo se reproduce con **un solo comando** (entorno `uv` fijado, semillas fijas, figuras y artículo auto-generados):
+- La CNN compacta entrenada desde cero supera de forma significativa a la transferencia congelada en este problema, bajo un presupuesto de bajo cómputo igual; el ajuste fino completo costaría más.
+- Grad-CAM revela una dependencia compartida del fondo del conjunto, que matiza todas las exactitudes reportadas.
+- Todo se reproduce con un solo comando (entorno `uv` fijado, semillas fijas, figuras y artículo auto-generados):
 
 ```bash
 make setup && make data && make train-all && make eval && make figures && make paper
 ```
 
-**Repositorio:** github.com/nielspac177/papa-vision — **¡Gracias!** · nielspacheco1997@gmail.com
+Repositorio: github.com/nielspac177/papa-vision · ¡Gracias! · nielspacheco1997@gmail.com

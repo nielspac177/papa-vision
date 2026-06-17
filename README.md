@@ -33,7 +33,7 @@ Everything runs on **CPU or Apple Silicon (MPS)** — no GPU required.
 > **Idiomas / Languages.** The manuscript and slide deck are provided in both
 > English and Spanish. Paper: `paper/main.pdf` (EN) · `paper/main_es.pdf` (ES).
 > Slides: `slides/presentation.pdf` (EN, 14 slides) · `slides/presentacion.pdf`
-> (ES, 20 slides). The Spanish manuscript reuses the same auto-generated metric
+> (ES, 19 slides). The Spanish manuscript reuses the same auto-generated metric
 > macros, so every reported number stays in sync with `results/metrics/`.
 
 ### Models compared
@@ -113,7 +113,7 @@ papa-vision/
 ├── scripts/            # download_data, autoresearch_loop, make_figures, make_paper_tables
 ├── tests/              # pytest suite (runs on synthetic data, no network)
 ├── paper/              # Nature Scientific Reports-style LaTeX manuscript (EN: main.tex · ES: main_es.tex)
-├── slides/             # Marp presentation decks (EN: presentation.md · ES: presentacion.md, 20 slides)
+├── slides/             # Marp presentation decks (EN: presentation.md · ES: presentacion.md, 19 slides)
 ├── results/            # metrics (JSON) + figures (PNG) — real, committed numbers
 └── notebooks/          # end-to-end demo
 ```
